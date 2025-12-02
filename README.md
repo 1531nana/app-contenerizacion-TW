@@ -1,0 +1,172 @@
+# 🌐 Aplicación Web Contenerizada - Linktree Full-Stack
+
+> **EA2 - Contenerización de una Aplicación Web**  
+> Aplicación full-stack completamente contenerizada con Docker y Docker Compose
+
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-3.0.0-000000?style=for-the-badge&logo=flask&logoColor=white)](https://flask.palletsprojects.com/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)](https://nginx.org/)
+
+---
+
+## 📋 Tabla de Contenidos
+
+- [Descripción del Proyecto](#-descripción-del-proyecto)
+- [Arquitectura del Sistema](#️-arquitectura-del-sistema)
+- [Estructura del Proyecto](#-estructura-del-proyecto)
+- [Prerequisitos](#-prerequisitos)
+- [Instalación y Despliegue](#-instalación-y-despliegue)
+- [Configuración Detallada](#-configuración-detallada)
+- [Endpoints de la API](#-endpoints-de-la-api)
+- [Pruebas y Verificación](#-pruebas-y-verificación)
+- [Comandos Útiles](#-comandos-útiles)
+- [Autores](#-autores)
+
+---
+
+## 📋 Descripción del Proyecto
+
+Aplicación web full-stack tipo **Linktree** que permite mostrar un perfil personal con enlaces a redes sociales. La información se almacena en una base de datos MySQL y se sirve a través de una API REST desarrollada en Flask.
+
+### Componentes Principales
+
+🎨 **Frontend (Nginx)**
+- Interfaz web responsiva con HTML5, CSS3 y JavaScript vanilla
+- Servidor web Nginx para servir archivos estáticos
+- Diseño adaptativo con W3.CSS
+- Consumo de API REST mediante Fetch API
+
+⚙️ **Backend (Flask)**
+- API REST desarrollada en Python 3.12 con Flask
+- Conexión a base de datos MySQL con reintentos automáticos
+- CORS habilitado para desarrollo
+- Manejo robusto de errores y excepciones
+
+💾 **Base de Datos (MySQL)**
+- MySQL 8.0 para almacenamiento persistente
+- Script de inicialización automática
+- Volúmenes Docker para persistencia de datos
+- Healthcheck para garantizar disponibilidad
+
+---
+
+## 🏗️ Arquitectura del Sistema
+
+### Diagrama de Componentes
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         DOCKER HOST                              │
+│                                                                  │
+│  ┌──────────────┐      ┌──────────────┐      ┌──────────────┐  │
+│  │   Frontend   │      │   Backend    │      │   Database   │  │
+│  │   (Nginx)    │─────▶│   (Flask)    │─────▶│   (MySQL)    │  │
+│  │              │ HTTP │              │ SQL  │              │  │
+│  │ Port: 8080   │      │ Port: 5000   │      │ Port: 3306   │  │
+│  └──────────────┘      └──────────────┘      └──────────────┘  │
+│         │                      │                      │         │
+│         │                      │                      │         │
+│  [HTML/CSS/JS]          [Python/Flask]         [MySQL 8.0]     │
+│  [W3.CSS]               [CORS]                 [init.sql]      │
+│  [Feather Icons]        [mysql-connector]      [Volumes]       │
+│                                                                  │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │              Docker Network (bridge)                        │ │
+│  │  - DNS automático entre servicios                          │ │
+│  │  - Aislamiento de red del host                             │ │
+│  └────────────────────────────────────────────────────────────┘ │
+│                                                                  │
+│  ┌────────────────────────────────────────────────────────────┐ │
+│  │              Docker Volume (mysql_data)                     │ │
+│  │  - Persistencia de datos de MySQL                          │ │
+│  └────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Flujo de Datos
+
+```
+1. Usuario → Navegador (localhost:8080/linktree.html)
+              ↓
+2. Frontend (Nginx) → Sirve HTML/CSS/JS
+              ↓
+3. JavaScript → Fetch API (localhost:5000/getMyInfo)
+              ↓
+4. Backend (Flask) → Procesa request
+              ↓
+5. Backend → Conecta a MySQL (database:3306)
+              ↓
+6. MySQL → Retorna datos de user_info
+              ↓
+7. Backend → Formatea JSON
+              ↓
+8. Frontend → Recibe JSON y actualiza DOM
+              ↓
+9. Usuario → Ve información personalizada
+```
+
+---
+
+## 📁 Estructura del Proyecto
+
+```
+front-back-bd/
+├── 📄 docker-compose.yml          # Orquestación de servicios
+├── 📄 README.md                   # Documentación del proyecto
+├── 📄 INFORME_CONFIGURACION_PRUEBAS.md
+├── 📄 PASOS_CONSTRUCCION_DESPLIEGUE.txt
+│
+├── 📂 backend/                    # Servicio Backend (Flask)
+│   ├── 📄 Dockerfile              # Imagen Docker del backend
+│   ├── 🐍 app.py                  # Aplicación Flask
+│   ├── 📄 requirements.txt        # Dependencias Python
+│   └── 📂 __pycache__/            # Cache de Python
+│
+├── 📂 frontend/                   # Servicio Frontend (Nginx)
+│   ├── 📄 Dockerfile              # Imagen Docker del frontend
+│   └── 📂 sitio/                  # Archivos web estáticos
+│       ├── 🌐 linktree.html       # Página principal
+│       ├── 📜 requests.js         # Lógica de consumo API
+│       └── 🎨 [archivos CSS]      # Estilos
+│
+└── 📂 database/                   # Servicio Base de Datos (MySQL)
+    ├── 📄 Dockerfile              # Imagen Docker de MySQL
+    └── 📄 init.sql                # Script de inicialización
+```
+
+---
+
+## ✅ Prerequisitos
+
+Antes de comenzar, asegúrate de tener instalado:
+
+### Software Requerido
+
+1. **Docker Desktop** (versión 20.10 o superior)
+   - 🪟 Windows: [Descargar Docker Desktop para Windows](https://docs.docker.com/desktop/install/windows-install/)
+   - 🍎 macOS: [Descargar Docker Desktop para Mac](https://docs.docker.com/desktop/install/mac-install/)
+   - 🐧 Linux: [Descargar Docker Desktop para Linux](https://docs.docker.com/desktop/install/linux-install/)
+
+2. **Docker Compose** (incluido con Docker Desktop)
+
+3. **Git** (opcional, para clonar el repositorio)
+
+---
+
+## 🚀 Instalación y Despliegue
+
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/1531nana/app-contenerizar-TW.git
+cd front-back-bd
+
+# 2. Levantar todos los servicios
+docker-compose up --build
+
+# 3. Acceder a la aplicación
+# Frontend: http://localhost:8080/linktree.html
+# API: http://localhost:5000/getMyInfo
+```
+---
