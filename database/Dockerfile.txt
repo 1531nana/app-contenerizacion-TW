@@ -1,0 +1,25 @@
+FROM mariadb:10.11
+
+RUN apt-get update && apt-get install -y \
+    vim-tiny \
+    net-tools \
+    iputils-ping \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV TZ=America/Bogota
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+
+ENV MYSQL_ROOT_PASSWORD=Mart$2020*Lp
+ENV MYSQL_DATABASE=linktree_db
+ENV MYSQL_USER=iud_user
+ENV MYSQL_PASSWORD=Iu23*#AcAlE$
+
+
+EXPOSE 3306
+
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+  CMD mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD} || exit 1
+
+CMD ["mysqld"]
