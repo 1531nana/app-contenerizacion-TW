@@ -10,10 +10,10 @@ ENV TZ=America/Bogota
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 
-ENV MYSQL_ROOT_PASSWORD=root_password
+ENV MYSQL_ROOT_PASSWORD=Mart$2020*Lp
 ENV MYSQL_DATABASE=linktree_db
-ENV MYSQL_USER=app_user
-ENV MYSQL_PASSWORD=app_password
+ENV MYSQL_USER=iud_user
+ENV MYSQL_PASSWORD=Iu23*#AcAlE$
 
 
 EXPOSE 3306
